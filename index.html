@@ -1,81 +1,166 @@
 <!doctype html>
-<html lang="pt-BR"><head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#173f5f"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="Finanças"><link rel="apple-touch-icon" href="icon-180.png"><link rel="manifest" href="manifest.json">
-<title>Meu Controle Financeiro</title>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#b40000">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Pakmatic">
+<link rel="apple-touch-icon" href="icon-180.png"><link rel="manifest" href="manifest.json">
+<title>Pakmatic • Relatório de Execução</title>
 <style>
-*{box-sizing:border-box}body{margin:0;background:#f4f6f8;color:#1d2939;font:14px Arial}
-header{background:#173f5f;color:#fff;padding:22px;border-radius:0 0 22px 22px}header h1{margin:0 0 5px}
-main{max-width:1100px;margin:auto;padding:18px}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
-.charts{display:grid;grid-template-columns:1fr 1fr;gap:14px}.card{background:#fff;border-radius:16px;padding:16px;margin-top:14px;box-shadow:0 3px 12px #0001}
-.label{color:#667085;font-size:13px}.value{font-size:21px;font-weight:bold;margin-top:8px}
-form{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}input,select,button{padding:11px;border:1px solid #d0d5dd;border-radius:10px;font-size:14px}
-button{background:#173f5f;color:#fff;border:0;font-weight:bold;cursor:pointer}.danger{background:#b42318}.secondary{background:#667085}
-table{width:100%;border-collapse:collapse;margin-top:12px}th,td{padding:10px;border-bottom:1px solid #eaecf0;text-align:left}th{background:#f2f4f7}
-.table{overflow:auto}canvas{width:100%;height:280px;background:#fff;border-radius:14px}
-@media(max-width:800px){.grid{grid-template-columns:1fr 1fr}.charts{grid-template-columns:1fr}form{grid-template-columns:1fr 1fr}}
-@media(max-width:480px){form{grid-template-columns:1fr}}
-</style></head><body>
-<header><h1>💰 Meu Controle Financeiro</h1><p>Renda, renda extra e gastos em um só lugar.</p></header>
-<main>
-<div class="grid">
-<div class="card"><div class="label">Renda principal</div><div class="value" id="mainIncome">R$ 0,00</div></div>
-<div class="card"><div class="label">Renda extra</div><div class="value" id="extraIncome">R$ 0,00</div></div>
-<div class="card"><div class="label">Renda total</div><div class="value" id="totalIncome">R$ 0,00</div></div>
-<div class="card"><div class="label">Saldo final</div><div class="value" id="balance">R$ 0,00</div></div>
-</div>
+:root{--red:#b40000;--red2:#df0909;--dark:#15191f;--muted:#69717b;--bg:#f4f6f8;--card:#fff;--line:#e6e9ed;--green:#16a34a;--orange:#f59e0b}
+*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--dark);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}
+body{padding-bottom:84px}.app{max-width:520px;margin:auto;min-height:100vh;background:var(--bg)}
+.top{background:linear-gradient(145deg,#8d0000,#c90000);color:#fff;padding:18px 18px 24px;border-radius:0 0 28px 28px;box-shadow:0 6px 22px #76000030}
+.brand{display:flex;align-items:center;justify-content:space-between;gap:12px}.brand img{background:#fff;border-radius:10px;padding:5px 9px;width:138px;height:auto}.hello{margin-top:22px}.hello small{opacity:.8}.hello h1{font-size:25px;margin:4px 0 0}.subtitle{margin:5px 0 0;opacity:.9;font-size:13px}
+.content{padding:14px 14px 10px}.view{display:none}.view.active{display:block}
+.card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:15px;margin:10px 0;box-shadow:0 3px 14px #1218200b}.card h2{font-size:17px;margin:0 0 12px}.muted{color:var(--muted);font-size:12px}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:-28px;position:relative}.stat{background:#fff;border-radius:16px;padding:13px;box-shadow:0 5px 18px #00000014}.stat small{color:var(--muted)}.stat strong{display:block;font-size:21px;margin-top:3px}
+.quick{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.quick button{background:#fff;border:1px solid var(--line);border-radius:15px;padding:14px;text-align:left;font-weight:700;box-shadow:0 2px 9px #00000008}.quick span{display:block;font-size:20px;margin-bottom:6px}.primary{background:var(--red)!important;color:#fff!important;border-color:var(--red)!important}.outline{background:#fff;color:var(--red);border:1px solid #d8b2b2;border-radius:12px;padding:11px 14px;font-weight:700}
+.section-title{display:flex;justify-content:space-between;align-items:center;margin:4px 2px 8px}.section-title h2{margin:0;font-size:18px}
+.row{display:flex;gap:8px;flex-wrap:wrap}.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}label{font-size:12px;font-weight:700}input,select,textarea{width:100%;margin-top:5px;padding:11px 12px;border:1px solid #d9dee4;border-radius:11px;background:#fff;font:inherit;color:inherit}textarea{min-height:90px;resize:vertical}.full{grid-column:1/-1}
+button{font:inherit;cursor:pointer}.btn{border:0;border-radius:11px;padding:11px 14px;font-weight:750}.danger{background:#fff0f0;color:#a40000;border:1px solid #ffd1d1}.point,.part{border:1px solid var(--line);border-radius:14px;padding:12px;margin:10px 0;background:#fafbfc}.photos{display:flex;gap:7px;flex-wrap:wrap;margin-top:8px}.photos img{width:72px;height:72px;object-fit:cover;border-radius:9px}.calc{background:#f7f8fa;border-radius:12px;padding:10px;margin-top:9px;font-size:12px}
+.history-item{padding:12px 0;border-bottom:1px solid var(--line)}.history-item:last-child{border-bottom:0}.status{display:inline-block;padding:4px 8px;border-radius:20px;font-size:10px;font-weight:800}.ok{background:#eaf8ef;color:#15803d}.pending{background:#fff5df;color:#a16207}
+.bottom{position:fixed;z-index:20;left:50%;bottom:0;transform:translateX(-50%);width:min(520px,100%);background:#fff;border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(4,1fr);padding:8px 6px calc(8px + env(safe-area-inset-bottom));box-shadow:0 -6px 18px #0000000d}.nav{border:0;background:none;color:#747b84;font-size:10px;font-weight:700;padding:5px}.nav b{display:block;font-size:20px;line-height:22px}.nav.active{color:var(--red)}
+.preview{background:#fff;border:1px solid #ddd;border-radius:12px;padding:16px;font-size:11px;line-height:1.45}.preview .rhead{display:flex;justify-content:space-between;border-bottom:3px solid var(--red);padding-bottom:9px;margin-bottom:10px}.preview img{width:105px}.preview table{width:100%;border-collapse:collapse}.preview th,.preview td{border:1px solid #ddd;padding:5px;text-align:left}
+.sig{width:100%;height:150px;border:1px dashed #cfd5db;border-radius:12px;background:#fff;touch-action:none}
+.logo-large{width:170px;max-width:60%}.back{background:#fff;border:0;color:#fff;font-size:22px}.top.simple{padding-bottom:18px}.top.simple .brand{justify-content:flex-start}
+@media(max-width:420px){.grid{grid-template-columns:1fr}.full{grid-column:auto}}
+@media print{.bottom,.top,.no-print{display:none!important}.view{display:none!important}.view#report.active{display:block!important}.content{padding:0}.card{box-shadow:none}}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="top" id="homeTop">
+  <div class="brand"><img src="logo-pakmatic.png" alt="Pakmatic"><span style="font-size:12px;font-weight:700">v6</span></div>
+  <div class="hello"><small>RELATÓRIO DE EXECUÇÃO DE SERVIÇO</small><h1>Meu trabalho, bem registrado.</h1><p class="subtitle">Atividades, fotos, peças, horários e assinatura em um só lugar.</p></div>
+</header>
 
-<div class="card"><h2>Renda principal</h2><form id="mainForm"><input id="mainInput" type="number" min="0" step=".01" placeholder="Salário / renda principal" required><button>Salvar renda</button></form></div>
+<main class="content">
+<section id="home" class="view active">
+  <div class="stats">
+    <div class="stat"><small>Relatórios este mês</small><strong id="statRel">0</strong></div>
+    <div class="stat"><small>Último atendimento</small><strong id="statUlt">—</strong></div>
+  </div>
+  <div class="card">
+    <button class="btn primary" style="width:100%;font-size:15px" onclick="show('novo')">＋ Novo relatório</button>
+  </div>
+  <div class="section-title"><h2>Acesso rápido</h2></div>
+  <div class="quick">
+    <button onclick="show('novo')"><span>📝</span>Novo atendimento<small class="muted">Iniciar relatório</small></button>
+    <button onclick="show('historico')"><span>🗂️</span>Histórico<small class="muted">Relatórios salvos</small></button>
+    <button onclick="show('estatisticas')"><span>📊</span>Estatísticas<small class="muted">Resumo dos serviços</small></button>
+    <button onclick="show('config')"><span>⚙️</span>Configurações<small class="muted">Preferências do app</small></button>
+  </div>
+  <div class="card"><h2>Como funciona</h2><p class="muted">1. Registre o atendimento → 2. Adicione pontos e fotos → 3. Informe peças e horários → 4. Colha as assinaturas → 5. Gere o relatório para cliente e gestor.</p></div>
+</section>
 
-<div class="card"><h2>Adicionar renda extra</h2><form id="extraForm">
-<input id="extraDate" type="date" required><input id="extraDesc" placeholder="Descrição (freelance, comissão...)" required>
-<input id="extraAmount" type="number" min="0" step=".01" placeholder="Valor (R$)" required><button>Adicionar renda extra</button></form>
-<div class="table"><table><thead><tr><th>Data</th><th>Descrição</th><th>Valor</th><th></th></tr></thead><tbody id="extraRows"></tbody></table></div></div>
-
-<div class="card"><h2>Adicionar gasto</h2><form id="expenseForm">
-<input id="date" type="date" required><input id="description" placeholder="Descrição" required>
-<select id="category" required><option value="">Categoria</option><option>Moradia</option><option>Alimentação</option><option>Transporte</option><option>Saúde</option><option>Educação</option><option>Lazer</option><option>Contas</option><option>Compras</option><option>Assinaturas</option><option>Outros</option></select>
-<select id="type"><option>Fixo</option><option>Variável</option><option>Parcelado</option><option>Eventual</option></select>
-<input id="amount" type="number" min="0" step=".01" placeholder="Valor (R$)" required><select id="status"><option>Sim</option><option>Não</option></select><button>Adicionar gasto</button></form></div>
-
-<div class="card"><h2>📊 Análise dos gastos</h2><p><b>Os gráficos são atualizados automaticamente.</b></p>
-<div class="charts">
-<div><h3>Maiores gastos por categoria</h3><canvas id="catChart" height="300"></canvas></div>
-<div><h3>Top 5 maiores gastos</h3><canvas id="topChart" height="300"></canvas></div>
-<div><h3>Gastos por mês</h3><canvas id="monthChart" height="300"></canvas></div>
-<div><h3>Renda × Gastos × Saldo</h3><canvas id="compareChart" height="300"></canvas></div>
+<section id="novo" class="view">
+<header class="top simple" style="margin:-14px -14px 14px;border-radius:0 0 22px 22px"><div class="brand"><button class="back" onclick="show('home')">‹</button><img src="logo-pakmatic.png" alt="Pakmatic"></div><div style="margin-top:10px;font-weight:800">Novo relatório</div></header>
+<div class="card"><h2>Dados do atendimento</h2><div class="grid">
+<label>Data<input id="date" type="date"></label><label>Responsável<input id="resp" placeholder="Seu nome"></label>
+<label>Cliente / empresa<input id="cliente"></label><label>Gestor<input id="gestor"></label>
+<label class="full">Local / endereço<input id="local"></label>
 </div></div>
 
-<div class="card"><h2>Histórico de gastos</h2><input id="filter" placeholder="Filtrar por descrição ou categoria">
-<button id="clear" class="danger" style="float:right">Apagar gastos</button>
-<div class="table"><table><thead><tr><th>Data</th><th>Descrição</th><th>Categoria</th><th>Tipo</th><th>Valor</th><th>Pago?</th><th></th></tr></thead><tbody id="rows"></tbody></table></div></div>
+<div class="card"><h2>Horários e almoço</h2><div class="grid">
+<label>Entrada<input id="entrada" type="time"></label><label>Início serviço<input id="inicio" type="time"></label>
+<label>Início almoço<input id="almocoIni" type="time"></label><label>Fim almoço<input id="almocoFim" type="time"></label>
+<label>Retorno<input id="retorno" type="time"></label><label>Término<input id="termino" type="time"></label>
+<label>Saída<input id="saida" type="time"></label></div>
+<div class="row" style="margin-top:10px"><button class="btn outline" onclick="calcHoras()">⏱ Calcular jornada</button><button class="btn outline" onclick="gps()">📍 GPS</button></div><div id="horas" class="calc">Informe entrada e saída para calcular.</div><div id="gps" class="muted" style="margin-top:7px"></div></div>
+
+<div class="card"><div class="section-title"><h2>Pontos executados</h2><button class="btn outline" onclick="addPoint()">＋ Ponto</button></div><div id="points"></div></div>
+
+<div class="card"><div class="section-title"><h2>Peças utilizadas</h2><button class="btn outline" onclick="addPart()">＋ Peça</button></div><div id="parts"></div></div>
+
+<div class="card"><h2>Relato do cliente</h2><textarea id="clienteRelato" placeholder="O cliente quer registrar algo?"></textarea></div>
+<div class="card"><h2>Resumo e pendências</h2><textarea id="resumo" placeholder="Resumo profissional do que foi realizado..."></textarea><textarea id="pend" placeholder="Pendências / observações..." style="margin-top:8px"></textarea><div class="row" style="margin-top:8px"><button class="btn outline" onclick="melhorar()">🤖 Melhorar texto</button><button class="btn outline" onclick="resumir()">🤖 Gerar resumo</button></div></div>
+
+<div class="card"><h2>Assinatura do responsável</h2><canvas id="sig1" class="sig"></canvas><button class="btn outline" onclick="clearCanvas('sig1')">Limpar</button></div>
+<div class="card"><h2>Assinatura do cliente</h2><canvas id="sig2" class="sig"></canvas><button class="btn outline" onclick="clearCanvas('sig2')">Limpar</button></div>
+
+<div class="card"><h2>Prévia profissional</h2><button class="btn primary" style="width:100%" onclick="previsualizar()">👁 Visualizar relatório</button><div id="preview" class="preview" style="display:none;margin-top:10px"></div></div>
+<div class="card no-print"><button class="btn primary" style="width:100%" onclick="finalizar()">✓ Finalizar e salvar</button><button class="btn outline" style="width:100%;margin-top:8px" onclick="window.print()">📄 Imprimir / PDF</button><div id="final"></div></div>
+</section>
+
+<section id="historico" class="view">
+<div class="card"><div class="section-title"><h2>Histórico</h2><button class="btn outline" onclick="carregarHistorico()">↻ Atualizar</button></div><input id="busca" placeholder="🔎 Buscar cliente ou local" oninput="carregarHistorico()"><div id="historyList" style="margin-top:8px"></div></div>
+</section>
+
+<section id="estatisticas" class="view">
+<div class="card"><h2>Estatísticas</h2><div class="stats" style="margin-top:0"><div class="stat"><small>Total de relatórios</small><strong id="totalStats">0</strong></div><div class="stat"><small>Concluídos</small><strong id="doneStats">0</strong></div></div></div>
+<div class="card"><h2>Objetivo do aplicativo</h2><p class="muted">Documentar o trabalho realizado de maneira clara para o profissional, gestor e cliente — sem transformar o relatório em uma ferramenta de cobrança.</p></div>
+</section>
+
+<section id="config" class="view">
+<div class="card"><h2>Configurações</h2><label>Nome do responsável<input id="cfgResp" placeholder="Nome exibido nos relatórios"></label><label style="display:block;margin-top:10px">Empresa<input id="cfgEmpresa" placeholder="Pakmatic"></label><button class="btn primary" style="margin-top:12px" onclick="saveConfig()">Salvar preferências</button></div>
+<div class="card"><h2>Sobre</h2><img class="logo-large" src="logo-pakmatic.png" alt="Pakmatic"><p class="muted">Pakmatic • Relatório de Execução de Serviço<br>Versão 6 — modelo visual profissional para iPhone.</p></div>
+</section>
 </main>
+</div>
+
+<nav class="bottom">
+<button class="nav active" data-v="home" onclick="show('home')"><b>⌂</b>Início</button>
+<button class="nav" data-v="novo" onclick="show('novo')"><b>＋</b>Novo</button>
+<button class="nav" data-v="historico" onclick="show('historico')"><b>▣</b>Histórico</button>
+<button class="nav" data-v="config" onclick="show('config')"><b>⚙</b>Ajustes</button>
+</nav>
+
 <script>
-const EK='gastos_v3',RK='renda_principal_v3',XK='rendas_extras_v3';
-let expenses=JSON.parse(localStorage.getItem(EK)||'[]'),mainIncome=+localStorage.getItem(RK)||0,extras=JSON.parse(localStorage.getItem(XK)||'[]');
-const $=id=>document.getElementById(id),money=v=>new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(v),today=()=>new Date().toISOString().slice(0,10);
-$('date').value=today();$('extraDate').value=today();$('mainInput').value=mainIncome||'';
-function save(){localStorage.setItem(EK,JSON.stringify(expenses));localStorage.setItem(RK,mainIncome);localStorage.setItem(XK,JSON.stringify(extras));render()}
-function render(){
- let extra=extras.reduce((s,x)=>s+x.amount,0),income=mainIncome+extra,total=expenses.reduce((s,e)=>s+e.amount,0),paid=expenses.filter(e=>e.status==='Sim').reduce((s,e)=>s+e.amount,0);
- $('mainIncome').textContent=money(mainIncome);$('extraIncome').textContent=money(extra);$('totalIncome').textContent=money(income);$('balance').textContent=money(income-total);
- $('extraRows').innerHTML=extras.length?extras.slice().sort((a,b)=>b.date.localeCompare(a.date)).map(x=>`<tr><td>${new Date(x.date+'T00:00:00').toLocaleDateString('pt-BR')}</td><td>${x.desc}</td><td>${money(x.amount)}</td><td><button class="danger" onclick="delExtra('${x.id}')">Excluir</button></td></tr>`).join(''):'<tr><td colspan="4">Nenhuma renda extra lançada.</td></tr>';
- let f=$('filter').value.toLowerCase(),list=expenses.filter(e=>(e.description+' '+e.category).toLowerCase().includes(f)).sort((a,b)=>b.date.localeCompare(a.date));
- $('rows').innerHTML=list.length?list.map(e=>`<tr><td>${new Date(e.date+'T00:00:00').toLocaleDateString('pt-BR')}</td><td>${e.description}</td><td>${e.category}</td><td>${e.type}</td><td>${money(e.amount)}</td><td>${e.status}</td><td><button class="danger" onclick="del('${e.id}')">Excluir</button></td></tr>`).join(''):'<tr><td colspan="7">Nenhum gasto lançado.</td></tr>';
- drawCharts(income,total);
+const $=id=>document.getElementById(id);
+let pn=0,rn=0;
+function show(id){
+ document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+ $(id).classList.add('active');
+ document.querySelectorAll('.nav').forEach(n=>n.classList.toggle('active',n.dataset.v===id));
+ window.scrollTo({top:0,behavior:'smooth'});
+ if(id==='historico')carregarHistorico();
+ if(id==='estatisticas')stats();
 }
-$('mainForm').onsubmit=e=>{e.preventDefault();mainIncome=+$('mainInput').value||0;save()};
-$('extraForm').onsubmit=e=>{e.preventDefault();extras.push({id:Date.now(),date:$('extraDate').value,desc:$('extraDesc').value,amount:+$('extraAmount').value||0});e.target.reset();$('extraDate').value=today();save()};
-$('expenseForm').onsubmit=e=>{e.preventDefault();expenses.push({id:Date.now(),date:$('date').value,description:$('description').value,category:$('category').value,type:$('type').value,amount:+$('amount').value||0,status:$('status').value});e.target.reset();$('date').value=today();save()};
-$('filter').oninput=render;$('clear').onclick=()=>{if(confirm('Apagar todos os gastos?')){expenses=[];save()}};
-function del(id){expenses=expenses.filter(e=>e.id!=id);save()}function delExtra(id){extras=extras.filter(e=>e.id!=id);save()}
-function setup(id){let c=$(id),ctx=c.getContext('2d'),w=c.clientWidth,h=300,d=devicePixelRatio||1;c.width=w*d;c.height=h*d;ctx.scale(d,d);return [ctx,w,h]}
-function bars(id,labels,vals,vertical=false){let [ctx,w,h]=setup(id),max=Math.max(...vals,1),pad=40,bw=(w-pad*2)/vals.length*.62;ctx.font='11px Arial';vals.forEach((v,i)=>{let bh=v/max*(h-70),x=pad+i*(w-pad*2)/vals.length,y=h-42-bh;ctx.fillStyle='#173f5f';ctx.fillRect(x,y,bw,bh);ctx.fillStyle='#667085';ctx.fillText(labels[i].slice(0,15),x,h-20);if(v)ctx.fillText((v/1000).toFixed(1)+'k',x,y-5)})}
-function drawCharts(income,total){
- let cats={};expenses.forEach(e=>cats[e.category]=(cats[e.category]||0)+e.amount);let c=Object.entries(cats).sort((a,b)=>b[1]-a[1]).slice(0,8);bars('catChart',c.map(x=>x[0]),c.map(x=>x[1]));
- let top=expenses.slice().sort((a,b)=>b.amount-a.amount).slice(0,5);bars('topChart',top.map(x=>x.description),top.map(x=>x.amount));
- let mv=Array(12).fill(0),mn=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];expenses.forEach(e=>mv[new Date(e.date+'T00:00:00').getMonth()]+=e.amount);bars('monthChart',mn,mv);
- bars('compareChart',['Renda','Gastos','Saldo'],[income,total,income-total]);
+$('date').value=new Date().toISOString().slice(0,10);
+
+function addPoint(){
+ pn++;let d=document.createElement('div');d.className='point';
+ d.innerHTML='<b>Ponto '+pn+'</b><div class="grid" style="margin-top:8px"><label>Local/equipamento<input class="pl" placeholder="Ex.: Painel 01"></label><label>Horário<input class="ph" type="time"></label><label class="full">Atividade realizada<textarea class="pd" placeholder="Descreva o serviço executado"></textarea></label><label>Status<select class="ps"><option>Concluído</option><option>Parcial</option><option>Não realizado</option></select></label><label>Observação<input class="po"></label><label class="full">Fotos do ponto<input class="pi" type="file" accept="image/*" capture="environment" multiple><div class="photos"></div></label></div><div class="row" style="margin-top:8px"><button class="btn outline" onclick="melhorarPonto(this)">🤖 Melhorar</button><button class="btn danger" onclick="this.closest('.point').remove()">Excluir</button></div>';
+ $('points').appendChild(d);
+ d.querySelector('.pi').onchange=e=>{let b=d.querySelector('.photos');b.innerHTML='';[...e.target.files].forEach(f=>{let i=new Image;i.src=URL.createObjectURL(f);b.appendChild(i)})}
 }
-render();
-</script></body></html>
+function addPart(){
+ rn++;let d=document.createElement('div');d.className='part';
+ d.innerHTML='<div class="grid"><label>Nome da peça<input class="pn" placeholder="Nome"></label><label>Código<input class="pc" placeholder="Código"></label><label>Quantidade<input class="pq" type="number" min="0" step="1" value="1"></label></div><div style="margin-top:8px"><button class="btn danger" onclick="this.closest('.part').remove()">Excluir</button></div>';
+ $('parts').appendChild(d)
+}
+addPoint();addPart();
+
+function melhorarPonto(b){let t=b.closest('.point').querySelector('.pd');t.value=t.value.trim().replace(/\bfiz\b/ig,'realizei').replace(/\btestei\b/ig,'realizei testes funcionais')||'Atividade executada conforme procedimento previsto, com registro do resultado observado no local.'}
+function melhorar(){let t=$('resumo');t.value=t.value.trim().replace(/\bfiz\b/ig,'realizei').replace(/\bterminei\b/ig,'concluí')||'Atividades realizadas nos pontos programados, com registro dos procedimentos executados e das condições encontradas.'}
+function resumir(){$('resumo').value=[...document.querySelectorAll('.point')].map((p,i)=>(i+1)+'. '+(p.querySelector('.pl').value||'Ponto não informado')+' — '+p.querySelector('.ps').value+': '+(p.querySelector('.pd').value||'sem descrição')).join('\n')}
+function mins(v){if(!v)return null;let [h,m]=v.split(':').map(Number);return h*60+m}
+function fmt(x){let h=Math.floor(x/60),m=x%60;return h+'h '+m+'min'}
+function calcHoras(){let e=mins($('entrada').value),s=mins($('saida').value),a=mins($('almocoIni').value),b=mins($('almocoFim').value);if(e==null||s==null)return $('horas').textContent='Informe entrada e saída.';let total=s-e,al=(a!=null&&b!=null)?Math.max(0,b-a):0;$('horas').textContent='Jornada total: '+fmt(total)+' · Almoço: '+fmt(al)+' · Tempo líquido: '+fmt(Math.max(0,total-al))}
+function gps(){if(!navigator.geolocation)return;$('gps').textContent='Obtendo localização...';navigator.geolocation.getCurrentPosition(p=>$('gps').textContent='GPS registrado: '+p.coords.latitude.toFixed(6)+', '+p.coords.longitude.toFixed(6),()=>$('gps').textContent='Não foi possível obter a localização.')}
+function setupSig(id){let c=$(id),x=c.getContext('2d');function rs(){let r=c.getBoundingClientRect(),d=devicePixelRatio||1;c.width=r.width*d;c.height=r.height*d;x.setTransform(d,0,0,d,0,0);x.lineWidth=2;x.lineCap='round'}rs();let dr=false;c.onpointerdown=e=>{dr=true;c.setPointerCapture(e.pointerId);let r=c.getBoundingClientRect();x.beginPath();x.moveTo(e.clientX-r.left,e.clientY-r.top)};c.onpointermove=e=>{if(!dr)return;let r=c.getBoundingClientRect();x.lineTo(e.clientX-r.left,e.clientY-r.top);x.stroke()};c.onpointerup=()=>dr=false}
+setupSig('sig1');setupSig('sig2');
+function clearCanvas(id){let c=$(id);c.getContext('2d').clearRect(0,0,c.width,c.height)}
+function dadosRelatorio(){return {data:$('date').value,resp:$('resp').value,cliente:$('cliente').value,gestor:$('gestor').value,local:$('local').value,resumo:$('resumo').value,pend:$('pend').value,clienteRelato:$('clienteRelato').value,pontos:document.querySelectorAll('.point').length,pecas:document.querySelectorAll('.part').length,finalizado:new Date().toISOString()}}
+function salvarHistorico(){let h=JSON.parse(localStorage.getItem('pakmaticRelatorios')||'[]');h.unshift(dadosRelatorio());localStorage.setItem('pakmaticRelatorios',JSON.stringify(h));carregarHistorico();stats()}
+function finalizar(){salvarHistorico();let now=new Date();$('final').innerHTML='<div class="calc" style="margin-top:10px"><b>✓ Relatório finalizado</b><br>'+now.toLocaleString('pt-BR')+' · '+document.querySelectorAll('.point').length+' ponto(s) · '+document.querySelectorAll('.part').length+' peça(s)</div>'}
+function carregarHistorico(){
+ let h=JSON.parse(localStorage.getItem('pakmaticRelatorios')||'[]'),q=($('busca')?.value||'').toLowerCase();
+ let list=h.filter(r=>(r.cliente+' '+r.local).toLowerCase().includes(q));$('historyList').innerHTML=list.length?list.map((r,i)=>'<div class="history-item"><b>'+esc(r.cliente||'Cliente não informado')+'</b><br><span class="muted">'+esc(r.data)+' · '+esc(r.local||'Local não informado')+'</span><br><span class="status ok">Concluído</span> <span class="muted">'+r.pontos+' pontos · '+r.pecas+' peças</span></div>').join(''):'<p class="muted">Nenhum relatório encontrado.</p>';
+ $('statRel').textContent=h.length;$('statUlt').textContent=h[0]?.data||'—'
+}
+function stats(){let h=JSON.parse(localStorage.getItem('pakmaticRelatorios')||'[]');$('totalStats').textContent=h.length;$('doneStats').textContent=h.length}
+function saveConfig(){localStorage.setItem('pakmaticConfig',JSON.stringify({resp:$('cfgResp').value,empresa:$('cfgEmpresa').value}));alert('Preferências salvas.')}
+function esc(v){return String(v||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+function previsualizar(){
+ const pts=[...document.querySelectorAll('.point')], pcs=[...document.querySelectorAll('.part')];
+ const lp=pts.map((p,i)=>'<tr><td>'+(i+1)+'</td><td>'+esc(p.querySelector('.pl').value||'—')+'</td><td>'+esc(p.querySelector('.pd').value||'—')+'</td><td>'+esc(p.querySelector('.ps').value)+'</td></tr>').join('');
+ const lpc=pcs.map(p=>'<tr><td>'+esc(p.querySelector('.pn').value)+'</td><td>'+esc(p.querySelector('.pc').value)+'</td><td>'+esc(p.querySelector('.pq').value)+'</td></tr>').join('');
+ $('preview').style.display='block';$('preview').innerHTML='<div class="rhead"><img src="logo-pakmatic.png"><b>RELATÓRIO DE EXECUÇÃO DE SERVIÇO</b></div><b>Dados do atendimento</b><p>Data: '+esc($('date').value)+'<br>Responsável: '+esc($('resp').value)+'<br>Cliente: '+esc($('cliente').value)+'<br>Gestor: '+esc($('gestor').value)+'<br>Local: '+esc($('local').value)+'</p><b>Horários</b><p>Entrada '+esc($('entrada').value)+' · Almoço '+esc($('almocoIni').value)+'–'+esc($('almocoFim').value)+' · Saída '+esc($('saida').value)+'</p><b>Pontos executados</b><table><tr><th>#</th><th>Ponto</th><th>Atividade</th><th>Status</th></tr>'+lp+'</table><br><b>Peças utilizadas</b><table><tr><th>Peça</th><th>Código</th><th>Qtd.</th></tr>'+lpc+'</table><br><b>Relato do cliente</b><p>'+esc($('clienteRelato').value||'Nenhum relato informado.')+'</p><b>Resumo</b><p>'+esc($('resumo').value||'Nenhum resumo informado.')+'</p><b>Pendências</b><p>'+esc($('pend').value||'Nenhuma.')+'</p><hr><p>Assinatura do responsável ____________________ &nbsp; Assinatura do cliente ____________________</p>'}
+carregarHistorico();stats();
+</script>
+</body></html>
