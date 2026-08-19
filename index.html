@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="pt-BR"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#173f5f"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="Finanças"><link rel="apple-touch-icon" href="icon-180.png"><link rel="manifest" href="manifest.json">
+<title>Meu Controle Financeiro</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f4f6f8;color:#1d2939;font:14px Arial}
+header{background:#173f5f;color:#fff;padding:22px;border-radius:0 0 22px 22px}header h1{margin:0 0 5px}
+main{max-width:1100px;margin:auto;padding:18px}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.charts{display:grid;grid-template-columns:1fr 1fr;gap:14px}.card{background:#fff;border-radius:16px;padding:16px;margin-top:14px;box-shadow:0 3px 12px #0001}
+.label{color:#667085;font-size:13px}.value{font-size:21px;font-weight:bold;margin-top:8px}
+form{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}input,select,button{padding:11px;border:1px solid #d0d5dd;border-radius:10px;font-size:14px}
+button{background:#173f5f;color:#fff;border:0;font-weight:bold;cursor:pointer}.danger{background:#b42318}.secondary{background:#667085}
+table{width:100%;border-collapse:collapse;margin-top:12px}th,td{padding:10px;border-bottom:1px solid #eaecf0;text-align:left}th{background:#f2f4f7}
+.table{overflow:auto}canvas{width:100%;height:280px;background:#fff;border-radius:14px}
+@media(max-width:800px){.grid{grid-template-columns:1fr 1fr}.charts{grid-template-columns:1fr}form{grid-template-columns:1fr 1fr}}
+@media(max-width:480px){form{grid-template-columns:1fr}}
+</style></head><body>
+<header><h1>💰 Meu Controle Financeiro</h1><p>Renda, renda extra e gastos em um só lugar.</p></header>
+<main>
+<div class="grid">
+<div class="card"><div class="label">Renda principal</div><div class="value" id="mainIncome">R$ 0,00</div></div>
+<div class="card"><div class="label">Renda extra</div><div class="value" id="extraIncome">R$ 0,00</div></div>
+<div class="card"><div class="label">Renda total</div><div class="value" id="totalIncome">R$ 0,00</div></div>
+<div class="card"><div class="label">Saldo final</div><div class="value" id="balance">R$ 0,00</div></div>
+</div>
+
+<div class="card"><h2>Renda principal</h2><form id="mainForm"><input id="mainInput" type="number" min="0" step=".01" placeholder="Salário / renda principal" required><button>Salvar renda</button></form></div>
+
+<div class="card"><h2>Adicionar renda extra</h2><form id="extraForm">
+<input id="extraDate" type="date" required><input id="extraDesc" placeholder="Descrição (freelance, comissão...)" required>
+<input id="extraAmount" type="number" min="0" step=".01" placeholder="Valor (R$)" required><button>Adicionar renda extra</button></form>
+<div class="table"><table><thead><tr><th>Data</th><th>Descrição</th><th>Valor</th><th></th></tr></thead><tbody id="extraRows"></tbody></table></div></div>
+
+<div class="card"><h2>Adicionar gasto</h2><form id="expenseForm">
+<input id="date" type="date" required><input id="description" placeholder="Descrição" required>
+<select id="category" required><option value="">Categoria</option><option>Moradia</option><option>Alimentação</option><option>Transporte</option><option>Saúde</option><option>Educação</option><option>Lazer</option><option>Contas</option><option>Compras</option><option>Assinaturas</option><option>Outros</option></select>
+<select id="type"><option>Fixo</option><option>Variável</option><option>Parcelado</option><option>Eventual</option></select>
+<input id="amount" type="number" min="0" step=".01" placeholder="Valor (R$)" required><select id="status"><option>Sim</option><option>Não</option></select><button>Adicionar gasto</button></form></div>
+
+<div class="card"><h2>📊 Análise dos gastos</h2><p><b>Os gráficos são atualizados automaticamente.</b></p>
+<div class="charts">
+<div><h3>Maiores gastos por categoria</h3><canvas id="catChart" height="300"></canvas></div>
+<div><h3>Top 5 maiores gastos</h3><canvas id="topChart" height="300"></canvas></div>
+<div><h3>Gastos por mês</h3><canvas id="monthChart" height="300"></canvas></div>
+<div><h3>Renda × Gastos × Saldo</h3><canvas id="compareChart" height="300"></canvas></div>
+</div></div>
+
+<div class="card"><h2>Histórico de gastos</h2><input id="filter" placeholder="Filtrar por descrição ou categoria">
+<button id="clear" class="danger" style="float:right">Apagar gastos</button>
+<div class="table"><table><thead><tr><th>Data</th><th>Descrição</th><th>Categoria</th><th>Tipo</th><th>Valor</th><th>Pago?</th><th></th></tr></thead><tbody id="rows"></tbody></table></div></div>
+</main>
+<script>
+const EK='gastos_v3',RK='renda_principal_v3',XK='rendas_extras_v3';
+let expenses=JSON.parse(localStorage.getItem(EK)||'[]'),mainIncome=+localStorage.getItem(RK)||0,extras=JSON.parse(localStorage.getItem(XK)||'[]');
+const $=id=>document.getElementById(id),money=v=>new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(v),today=()=>new Date().toISOString().slice(0,10);
+$('date').value=today();$('extraDate').value=today();$('mainInput').value=mainIncome||'';
+function save(){localStorage.setItem(EK,JSON.stringify(expenses));localStorage.setItem(RK,mainIncome);localStorage.setItem(XK,JSON.stringify(extras));render()}
+function render(){
+ let extra=extras.reduce((s,x)=>s+x.amount,0),income=mainIncome+extra,total=expenses.reduce((s,e)=>s+e.amount,0),paid=expenses.filter(e=>e.status==='Sim').reduce((s,e)=>s+e.amount,0);
+ $('mainIncome').textContent=money(mainIncome);$('extraIncome').textContent=money(extra);$('totalIncome').textContent=money(income);$('balance').textContent=money(income-total);
+ $('extraRows').innerHTML=extras.length?extras.slice().sort((a,b)=>b.date.localeCompare(a.date)).map(x=>`<tr><td>${new Date(x.date+'T00:00:00').toLocaleDateString('pt-BR')}</td><td>${x.desc}</td><td>${money(x.amount)}</td><td><button class="danger" onclick="delExtra('${x.id}')">Excluir</button></td></tr>`).join(''):'<tr><td colspan="4">Nenhuma renda extra lançada.</td></tr>';
+ let f=$('filter').value.toLowerCase(),list=expenses.filter(e=>(e.description+' '+e.category).toLowerCase().includes(f)).sort((a,b)=>b.date.localeCompare(a.date));
+ $('rows').innerHTML=list.length?list.map(e=>`<tr><td>${new Date(e.date+'T00:00:00').toLocaleDateString('pt-BR')}</td><td>${e.description}</td><td>${e.category}</td><td>${e.type}</td><td>${money(e.amount)}</td><td>${e.status}</td><td><button class="danger" onclick="del('${e.id}')">Excluir</button></td></tr>`).join(''):'<tr><td colspan="7">Nenhum gasto lançado.</td></tr>';
+ drawCharts(income,total);
+}
+$('mainForm').onsubmit=e=>{e.preventDefault();mainIncome=+$('mainInput').value||0;save()};
+$('extraForm').onsubmit=e=>{e.preventDefault();extras.push({id:Date.now(),date:$('extraDate').value,desc:$('extraDesc').value,amount:+$('extraAmount').value||0});e.target.reset();$('extraDate').value=today();save()};
+$('expenseForm').onsubmit=e=>{e.preventDefault();expenses.push({id:Date.now(),date:$('date').value,description:$('description').value,category:$('category').value,type:$('type').value,amount:+$('amount').value||0,status:$('status').value});e.target.reset();$('date').value=today();save()};
+$('filter').oninput=render;$('clear').onclick=()=>{if(confirm('Apagar todos os gastos?')){expenses=[];save()}};
+function del(id){expenses=expenses.filter(e=>e.id!=id);save()}function delExtra(id){extras=extras.filter(e=>e.id!=id);save()}
+function setup(id){let c=$(id),ctx=c.getContext('2d'),w=c.clientWidth,h=300,d=devicePixelRatio||1;c.width=w*d;c.height=h*d;ctx.scale(d,d);return [ctx,w,h]}
+function bars(id,labels,vals,vertical=false){let [ctx,w,h]=setup(id),max=Math.max(...vals,1),pad=40,bw=(w-pad*2)/vals.length*.62;ctx.font='11px Arial';vals.forEach((v,i)=>{let bh=v/max*(h-70),x=pad+i*(w-pad*2)/vals.length,y=h-42-bh;ctx.fillStyle='#173f5f';ctx.fillRect(x,y,bw,bh);ctx.fillStyle='#667085';ctx.fillText(labels[i].slice(0,15),x,h-20);if(v)ctx.fillText((v/1000).toFixed(1)+'k',x,y-5)})}
+function drawCharts(income,total){
+ let cats={};expenses.forEach(e=>cats[e.category]=(cats[e.category]||0)+e.amount);let c=Object.entries(cats).sort((a,b)=>b[1]-a[1]).slice(0,8);bars('catChart',c.map(x=>x[0]),c.map(x=>x[1]));
+ let top=expenses.slice().sort((a,b)=>b.amount-a.amount).slice(0,5);bars('topChart',top.map(x=>x.description),top.map(x=>x.amount));
+ let mv=Array(12).fill(0),mn=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];expenses.forEach(e=>mv[new Date(e.date+'T00:00:00').getMonth()]+=e.amount);bars('monthChart',mn,mv);
+ bars('compareChart',['Renda','Gastos','Saldo'],[income,total,income-total]);
+}
+render();
+</script></body></html>
