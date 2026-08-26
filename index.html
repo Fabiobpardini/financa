@@ -171,14 +171,12 @@ $('date').value=new Date().toISOString().slice(0,10);
 
 function addPoint(){
  pn++;let d=document.createElement('div');d.className='point';
- d.innerHTML='<b>Ponto '+pn+'</b><div class="grid" style="margin-top:8px"><label>Local/equipamento<input class="pl" placeholder="Ex.: Painel 01"></label><label>Horário<input class="ph" type="time"></label><label class="full">Atividade realizada<textarea class="pd" placeholder="Descreva o serviço executado"></textarea></label><label>Status<select class="ps"><option>Concluído</option><option>Parcial</option><option>Não realizado</option></select></label><label>Observação<input class="po"></label><label class="full">Fotos do ponto<input class="pi" type="file" accept="image/*" capture="environment" multiple><div class="photos"></div></label></div><div class="row" style="margin-top:8px"><button class="btn outline" onclick="melhorarPonto(this)">🤖 Melhorar</button><button class="btn danger" onclick="this.closest('.point').remove()">Excluir</button></div>';
- $('points').appendChild(d);
+ d.innerHTML=`<b>Ponto ${pn}</b><div class="grid" style="margin-top:8px"><label>Local/equipamento<input class="pl" placeholder="Ex.: Painel 01"></label><label>Horário<input class="ph" type="time"></label><label class="full">Atividade realizada<textarea class="pd" placeholder="Descreva o serviço executado"></textarea></label><label>Status<select class="ps"><option>Concluído</option><option>Parcial</option><option>Não realizado</option></select></label><label>Observação<input class="po"></label><label class="full">Fotos do ponto<input class="pi" type="file" accept="image/*" capture="environment" multiple><div class="photos"></div></label></div><div class="row" style="margin-top:8px"><button class="btn outline" onclick="melhorarPonto(this)">🤖 Melhorar</button><button class="btn danger" onclick="this.closest('.point').remove()">Excluir</button></div>`; $('points').appendChild(d);
  d.querySelector('.pi').onchange=e=>{let b=d.querySelector('.photos');b.innerHTML='';[...e.target.files].forEach(f=>{let i=new Image;i.src=URL.createObjectURL(f);b.appendChild(i)})}
 }
 function addPart(){
  rn++;let d=document.createElement('div');d.className='part';
- d.innerHTML='<div class="grid"><label>Nome da peça<input class="pn" placeholder="Nome"></label><label>Código<input class="pc" placeholder="Código"></label><label>Quantidade<input class="pq" type="number" min="0" step="1" value="1"></label></div><div style="margin-top:8px"><button class="btn danger" onclick="this.closest('.part').remove()">Excluir</button></div>';
- $('parts').appendChild(d)
+ d.innerHTML=`<div class="grid"><label>Nome da peça<input class="pn" placeholder="Nome"></label><label>Código<input class="pc" placeholder="Código"></label><label>Quantidade<input class="pq" type="number" min="0" step="1" value="1"></label></div><div style="margin-top:8px"><button class="btn danger" onclick="this.closest('.part').remove()">Excluir</button></div>`; $('parts').appendChild(d)
 }
 addPoint();addPart();
 
